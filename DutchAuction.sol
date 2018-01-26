@@ -16,6 +16,8 @@
 
 pragma solidity ^0.4.7;
 
+import "SimpleCertifier.sol";
+
 /// Stripped down ERC20 standard token interface.
 contract Token {
 	function transfer(address _to, uint256 _value) returns (bool success);
@@ -40,7 +42,8 @@ contract DutchAuction {
 	event Retired();
 
 	/// Simple constructor.
-	function DutchAuction(address _tokenContract, address _treasury, address _admin, uint _beginTime, uint _beginPrice, uint _saleSpeed, uint _tokenCap) {
+	function DutchAuction(address _certifierContract, address _tokenContract, address _treasury, address _admin, uint _beginTime, uint _beginPrice, uint _saleSpeed, uint _tokenCap) {
+		certifier = SimpleCertifier(_certifierContract);
 		tokenContract = Token(_tokenContract);
 		treasury = _treasury;
 		admin = _admin;
@@ -58,6 +61,7 @@ contract DutchAuction {
 		when_not_halted
 		when_active
 		avoid_dust
+		only_certified(msg.sender)
 	{
 		uint price = currentPrice();
 		uint tokens = msg.value / price;
@@ -166,6 +170,9 @@ contract DutchAuction {
 	/// Ensure sender is admin.
 	modifier only_admin { if (msg.sender == admin) _; else throw; }
 
+	/// Ensure that `who` is certified.
+	modifier only_certified(address _who) { if (certifier.certified(_who)) _; else throw; }
+
 	// State:
 
 	/// The auction participants.
@@ -188,6 +195,9 @@ contract DutchAuction {
 	bool public halted;
 
 	// Constants after constructor:
+
+	/// The certifier.
+	SimpleCertifier public certifier;
 
 	/// The tokens contract.
 	Token public tokenContract;
