@@ -16,7 +16,7 @@
 
 pragma solidity ^0.4.7;
 
-import "./SimpleCertifier.sol";
+import "SimpleCertifier.sol";
 
 /// Stripped down ERC20 standard token interface.
 contract Token {

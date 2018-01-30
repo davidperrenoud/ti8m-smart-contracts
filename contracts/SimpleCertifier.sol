@@ -16,8 +16,8 @@
 
 pragma solidity ^0.4.7;
 
-import "./Owned.sol";
-import "./Certifier.sol";
+import "Owned.sol";
+import "Certifier.sol";
 
 contract SimpleCertifier is Owned, Certifier {
 	enum Level {

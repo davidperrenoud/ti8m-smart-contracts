@@ -16,8 +16,8 @@
 
 pragma solidity ^0.4.1;
 
-import "./Owned.sol";
-import "./Token.sol";
+import "Owned.sol";
+import "Token.sol";
 
 // TokenReg interface
 contract TokenReg {
