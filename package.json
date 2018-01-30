@@ -10,7 +10,7 @@
     "serve": "truffle serve",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
-    "test": "docker run -d -p 8545:8545 --name testrpc wbuchwalter/testrpc  && truffle test",
+    "test": "truffle test",
     "posttest": "docker stop testrpc"
   },
   "repository": {
@@ -20,7 +20,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "truffle": "^2.1.0",
+    "truffle": "^2.1.1",
     "web3": "^0.18.2"
   }
 }
