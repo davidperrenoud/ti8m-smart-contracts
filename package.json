@@ -10,12 +10,11 @@
     "serve": "truffle serve",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
-    "test": "truffle test",
-    "posttest": "docker stop testrpc"
+    "test": "truffle test"
   },
   "repository": {
     "type": "git",
-    "url": "https://wibuch2.visualstudio.com/_git/truffle"
+    "url": "https://github.com/davidperrenoud/ti8m-smart-contracts"
   },
   "author": "",
   "license": "ISC",
