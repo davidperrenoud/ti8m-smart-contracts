@@ -1,4 +1,11 @@
 module.exports = {
-  // See <http://truffleframework.com/docs/advanced/configuration>
-  // to customize your Truffle configuration!
+  rpc: {
+    host: "localhost",
+    port: 8545
+  },
+  networks:{
+    "production": {
+      "network_id": 20170123
+    }
+  }
 };
