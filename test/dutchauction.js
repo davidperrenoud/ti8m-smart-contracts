@@ -1,7 +1,5 @@
-// Print the deployed version of SimpleCertifier.
-// Note that getting the deployed version requires a promise, hence the .then.
-let DutchAuction = artifacts.require('./contracts/DutchAuction.sol');
-let SimpleCertifier = artifacts.require('./contracts/SimpleCertifier.sol');
+var DutchAuction = artifacts.require('./contracts/DutchAuction.sol');
+var SimpleCertifier = artifacts.require('./contracts/SimpleCertifier.sol');
 
 contract('DutchAuction', (accounts) => {
     it('should check if the auction is active', () => {

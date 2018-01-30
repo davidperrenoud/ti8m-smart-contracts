@@ -1,11 +1,11 @@
-let SimpleCertifier = artifacts.require('./SimpleCertifier.sol');
-let DutchAuction = artifacts.require('./DutchAuction.sol');
-let BasicCoin = artifacts.require('./BasicCoin.sol');
+var SimpleCertifier = artifacts.require('./SimpleCertifier.sol');
+var DutchAuction = artifacts.require('./DutchAuction.sol');
+var BasicCoin = artifacts.require('./BasicCoin.sol');
 
 module.exports = function (deployer, network, accounts) {
     const _treasury = accounts[1];
     const _admin = accounts[0];
-    const _beginTime = web3.eth.getBlock(web3.eth.blockNumber).timestamp
+    const _beginTime = web3.eth.getBlock(web3.eth.blockNumber).timestamp;
     const _beginPrice = 10000;
     const _saleSpeed = 1;
     const _tokenCap = 10;
