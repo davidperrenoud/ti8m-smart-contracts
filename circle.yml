@@ -2,10 +2,11 @@ machine:
   services:
     - docker
   node:
-    version: 7.4.0
+    version: 8.9.1
 
 deployment:
   production:
     branch: master
     commands:
+      - truffle develop
       - truffle migrate
