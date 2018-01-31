@@ -1,5 +1,5 @@
-//var DutchAuction = artifacts.require('./contracts/DutchAuction.sol');
-//var SimpleCertifier = artifacts.require('./contracts/SimpleCertifier.sol');
+var DutchAuction = artifacts.require('./contracts/DutchAuction.sol');
+var SimpleCertifier = artifacts.require('./contracts/SimpleCertifier.sol');
 
 contract('DutchAuction', function(accounts){
     it('should check if the auction is active', function(){

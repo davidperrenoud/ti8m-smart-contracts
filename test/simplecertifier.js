@@ -1,4 +1,4 @@
-//var SimpleCertifier = artifacts.require("./contracts/SimpleCertifier.sol");
+var SimpleCertifier = artifacts.require("./contracts/SimpleCertifier.sol");
 
 contract('SimpleCertifier', function(accounts) {
     it("should certify an account for level 1", function() {
