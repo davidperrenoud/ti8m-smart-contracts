@@ -4,9 +4,3 @@ machine:
   node:
     version: 8.9.1
 
-deployment:
-  production:
-    branch: master
-    commands:
-      - truffle develop
-      - truffle migrate
