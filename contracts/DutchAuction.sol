@@ -61,7 +61,8 @@ contract DutchAuction {
 		when_not_halted
 		when_active
 		avoid_dust
-		only_certified(msg.sender)
+		only_certified
+        only_limited_amount_or_highly_certified
 	{
 		uint price = currentPrice();
 		uint tokens = msg.value / price;
@@ -170,8 +171,19 @@ contract DutchAuction {
 	/// Ensure sender is admin.
 	modifier only_admin { if (msg.sender == admin) _; else throw; }
 
-	/// Ensure that `who` is certified.
-	modifier only_certified(address _who) { if (certifier.certified(_who)) _; else throw; }
+	/// Ensure sender is certified.
+	modifier only_certified { if (certifier.certified(msg.sender)) _; else throw; }
+
+	/// Ensure sender is certified for that amount.
+	modifier only_limited_amount_or_highly_certified {
+        if (msg.value < HIGHLY_CERTIFIED_LIMIT) {
+            _;
+        } else if (certifier.highlyCertified(msg.sender)) {
+            _;
+        } else {
+            throw;
+        }
+    }
 
 	// State:
 
@@ -225,4 +237,8 @@ contract DutchAuction {
 
 	/// Anything less than this is considered dust and cannot be used to buy in.
 	uint constant public DUST_LIMIT = 10 finney;
+
+	// Constant values for the different levels of certification
+	uint constant public HIGHLY_CERTIFIED_LIMIT = 1 ether;
+
 }

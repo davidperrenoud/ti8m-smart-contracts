@@ -9,49 +9,74 @@ contract('DutchAuction', function(accounts){
             assert.equal(response, true, 'the auction is not active');
         });
     });
-    it('should check if the account is certified', function(){
+    it('should check if a certified level 1 account can buy according to the limit', function() {
         return SimpleCertifier.deployed().then(function(instance) {
-            instance.certify(accounts[0], 1);
-            return instance.certified(accounts[0]);
-        }).then(function (response) {
-            assert.equal(response, true, 'the account is not certified');
-        });
-    });
-    it('should check if a certified account can buy', function() {
-        return DutchAuction.deployed().then(function(instance) {
+            return instance.certify(accounts[1], 1, 0, 0).then(function(){
+                return DutchAuction.deployed().then(function(instance) {
 
-            let amount = web3.toWei(0.01, "ether");
+                    let amount = web3.toWei(0.5, "ether");
 
-            return instance.sendTransaction({
-                                                from: accounts[0],
-                                                value: amount
-                                            });
-        }).then(function (response) {
-            assert.ok(response.tx, 'transaction not working');
-        });
+                    return instance.sendTransaction({
+                                                        from: accounts[1],
+                                                        value: amount
+                                                    });
+                }).then(function (response) {
+                    assert.ok(response.tx, 'transaction not working');
+                });
+            });
+        })
     });
-    it('should check if the account is not certified', function() {
+    it('should check if a certified level 2 account can buy according to the limit', function() {
         return SimpleCertifier.deployed().then(function(instance) {
-            instance.revoke(accounts[0]);
-            return instance.certified(accounts[0]);
-        }).then(function (response) {
-            assert.equal(response, false, 'the account is certified');
-        });
+            return instance.certify(accounts[2], 2, 0, 0).then(function(){
+                return DutchAuction.deployed().then(function(instance) {
+
+                    let amount = web3.toWei(2, "ether");
+                    return instance.sendTransaction({
+                                                        from: accounts[2],
+                                                        value: amount
+                                                    });
+                }).then(function (response) {
+                    assert.ok(response.tx, 'transaction not working');
+                });
+            });
+        })
     });
-    it('should check if a not certified account can buy', () => {
-        return DutchAuction.deployed().then(function(instance) {
+    it('should check if a not certified account can buy', function() {
+        return SimpleCertifier.deployed().then(function(instance) {
+            return instance.revoke(accounts[0]).then(function(){
+                return DutchAuction.deployed().then(function(instance) {
 
-            let amount = web3.toWei(0.01, "ether");
+                    let amount = web3.toWei(1, "ether");
+                    return instance.sendTransaction({
+                                                        from: accounts[0],
+                                                        value: amount
+                                                    });
+                }).then(function(response) {
+                    assert(false, "it was supposed to throw an error but didn't.");
+                }).catch(function(error) {
+                    assert(true, "Test failed.");
+                });
+            });
+        })
+    });
+    it('should check if a certified level 1 account can buy with a higher limit', function() {
+        return SimpleCertifier.deployed().then(function(instance) {
+            return instance.certify(accounts[1], 1, 0, 0).then(function(){
+                return DutchAuction.deployed().then(function(instance) {
 
-            return instance.sendTransaction({
-                                                from: accounts[0],
-                                                value: amount
-                                            });
-        }).then(function(response) {
-            assert(false, "it was supposed to throw an error but didn't.");
-        }).catch(function(error) {
-            assert(true, "Test failed.");
-        });
+                    let amount = web3.toWei(2, "ether");
+                    return instance.sendTransaction({
+                                                        from: accounts[2],
+                                                        value: amount
+                                                    });
+                }).then(function(response) {
+                    assert(false, "it was supposed to throw an error but didn't.");
+                }).catch(function(error) {
+                    assert(true, "Test failed.");
+                });
+            });
+        })
     });
 });
 
