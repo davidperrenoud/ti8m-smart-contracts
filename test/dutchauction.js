@@ -9,7 +9,7 @@ contract('DutchAuction', function(accounts){
             assert.equal(response, true, 'the auction is not active');
         });
     });
-    it('should check if a certified level 1 account can buy according to the limit', function() {
+    it('should check if a certified levels account can buy according to the limit', function() {
         return SimpleCertifier.deployed().then(function(instance) {
             return instance.certify(accounts[1], 1, 0, 0).then(function(){
                 return DutchAuction.deployed().then(function(instance) {
@@ -24,10 +24,7 @@ contract('DutchAuction', function(accounts){
                     assert.ok(response.tx, 'transaction not working');
                 });
             });
-        })
-    });
-    it('should check if a certified level 2 account can buy according to the limit', function() {
-        return SimpleCertifier.deployed().then(function(instance) {
+
             return instance.certify(accounts[2], 2, 0, 0).then(function(){
                 return DutchAuction.deployed().then(function(instance) {
 
