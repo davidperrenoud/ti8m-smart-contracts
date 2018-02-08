@@ -62,7 +62,7 @@ contract DutchAuction {
 		when_active
 		avoid_dust
 		only_certified
-        only_limited_amount_or_highly_certified
+		only_limited_amount_or_highly_certified
 	{
 		uint price = currentPrice();
 		uint tokens = msg.value / price;
@@ -176,14 +176,14 @@ contract DutchAuction {
 
 	/// Ensure sender is certified for that amount.
 	modifier only_limited_amount_or_highly_certified {
-        if (msg.value < HIGHLY_CERTIFIED_LIMIT) {
-            _;
-        } else if (certifier.highlyCertified(msg.sender)) {
-            _;
-        } else {
-            throw;
-        }
-    }
+		if (msg.value < HIGHLY_CERTIFIED_LIMIT) {
+			_;
+		} else if (certifier.highlyCertified(msg.sender)) {
+			_;
+		} else {
+			throw;
+		}
+	}
 
 	// State:
 
