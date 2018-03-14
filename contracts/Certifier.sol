@@ -24,7 +24,7 @@ contract Certifier {
 		Level_3
 	}
 
-	event Confirmed(bytes indexed who, uint level);
-	event Revoked(bytes indexed who);
-	function certified(bytes _who) constant public returns (Level);
+	event Confirmed(address indexed who, uint level);
+	event Revoked(address indexed who);
+	function certified(address _who) constant public returns (Level);
 }
