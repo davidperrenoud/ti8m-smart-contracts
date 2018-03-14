@@ -31,6 +31,21 @@ contract("SimpleCertifier", function(accounts) {
         );
       });
   });
+  it("should certify an account for level 3", () => {
+    return SimpleCertifier.deployed()
+      .then(function(instance) {
+        return instance.certify(accounts[0], 3, accounts[0]).then(function() {
+          return instance.certified(accounts[0]);
+        });
+      })
+      .then(function(response) {
+        assert.equal(
+          response,
+          3,
+          "the account is not certified for level 3"
+        );
+      });
+  });
   it("should revoke the certification for an account", () => {
     return SimpleCertifier.deployed()
       .then(function(instance) {
