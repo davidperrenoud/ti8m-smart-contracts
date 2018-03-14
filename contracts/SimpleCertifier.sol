@@ -20,41 +20,28 @@ import "./Owned.sol";
 import "./Certifier.sol";
 
 contract SimpleCertifier is Owned, Certifier {
-	enum Level {
-		Revoked,
-		Level1,
-		Level2
-	}
-
 	modifier only_delegate { if (msg.sender != delegate) return; _; }
-	modifier only_certified(address _who) { if (certs[_who].activeLevel == Level.Revoked) return; _; }
+	modifier only_certified(address _who) { if (certs[_who].level == Level.Revoked) return; _; }
 
 	struct Certification {
-		Level activeLevel;
-		bool politicallyExposed;
-		bool blacklisted;
-		mapping (string => bytes32) meta;
+		Level level;
+		address receiveWallet;
 	}
 
-	function certify(address _who, uint level, bool politicallyExposed, bool blacklisted) only_delegate {
-		certs[_who].activeLevel = Level(level);
-		certs[_who].politicallyExposed = politicallyExposed;
-		certs[_who].blacklisted = blacklisted;
-		Confirmed(_who, uint(certs[_who].activeLevel));
+	function certify(address _who, uint level, address receiveWallet) only_delegate {
+		certs[_who].level = Level(level);
+		Confirmed(_who, uint(certs[_who].level));
 	}
+
 	function revoke(address _who) only_delegate only_certified(_who) {
-		certs[_who].activeLevel = Level.Revoked;
+		certs[_who].level = Level.Revoked;
 		Revoked(_who);
 	}
-	function certified(address _who) constant returns (bool) {
-		return (certs[_who].activeLevel != Level.Revoked) && !certs[_who].politicallyExposed && !certs[_who].blacklisted;
+
+	function certified(address _who) constant returns (Level) {
+		return certs[_who].level;
 	}
-	function highlyCertified(address _who) constant returns (bool) {
-		return (certs[_who].activeLevel == Level.Level2) && !certs[_who].politicallyExposed && !certs[_who].blacklisted;
-	}
-	function get(address _who, string _field) constant returns (bytes32) { return certs[_who].meta[_field]; }
-	function getAddress(address _who, string _field) constant returns (address) { return address(certs[_who].meta[_field]); }
-	function getUint(address _who, string _field) constant returns (uint) { return uint(certs[_who].meta[_field]); }
+
 	function setDelegate(address _new) only_owner { delegate = _new; }
 
 	mapping (address => Certification) certs;
