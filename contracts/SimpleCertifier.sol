@@ -28,22 +28,22 @@ contract SimpleCertifier is Owned, Certifier {
 		address receiveWallet;
 	}
 
-	function certify(address _who, uint level, address receiveWallet) only_delegate {
+	function certify(address _who, uint level, address receiveWallet) public only_delegate {
 		certs[_who].level = Level(level);
 		certs[_who].receiveWallet = receiveWallet;
 		Confirmed(_who, level, receiveWallet);
 	}
 
-	function revoke(address _who) only_delegate only_certified(_who) {
+	function revoke(address _who) public only_delegate only_certified(_who) {
 		certs[_who].level = Level.Revoked;
 		Revoked(_who);
 	}
 
-	function certified(address _who) constant returns (Level) {
+	function certified(address _who) public constant returns (Level) {
 		return certs[_who].level;
 	}
 
-	function setDelegate(address _new) only_owner { delegate = _new; }
+	function setDelegate(address _new) public only_owner { delegate = _new; }
 
 	mapping (address => Certification) certs;
 	// So that the server posting puzzles doesn't have access to the ETH.

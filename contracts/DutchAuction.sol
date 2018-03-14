@@ -20,7 +20,7 @@ import "./SimpleCertifier.sol";
 
 /// Stripped down ERC20 standard token interface.
 contract Token {
-	function transfer(address _to, uint256 _value) returns (bool success);
+	function transfer(address _to, uint256 _value) public returns (bool success);
 }
 
 /// Simple Dutch Auction contract. Price starts high and monotonically decreases
@@ -42,7 +42,7 @@ contract DutchAuction {
 	event Retired();
 
 	/// Simple constructor.
-	function DutchAuction(address _certifierContract, address _tokenContract, address _treasury, address _admin, uint _beginTime, uint _beginPrice, uint _saleSpeed, uint _tokenCap) {
+	function DutchAuction(address _certifierContract, address _tokenContract, address _treasury, address _admin, uint _beginTime, uint _beginPrice, uint _saleSpeed, uint _tokenCap) public {
 		certifier = SimpleCertifier(_certifierContract);
 		tokenContract = Token(_tokenContract);
 		treasury = _treasury;
@@ -57,6 +57,7 @@ contract DutchAuction {
 	/// Buyin function. Throws if the sale is not active. May refund some of the
 	/// funds if they would end the sale.
 	function()
+        public
 		payable
 		when_not_halted
 		when_active
@@ -72,13 +73,13 @@ contract DutchAuction {
 		// if we've asked for too many, send back the extra.
 		if (tokens > tokensAvailable()) {
 			refund = (tokens - tokensAvailable()) * price;
-			if (!msg.sender.send(refund)) throw;
+			if (!msg.sender.send(refund)) { revert(); }
 			tokens = tokensAvailable();
 			accepted -= refund;
 		}
 
 		// send rest to treasury
-		if (!treasury.send(accepted)) throw;
+		if (!treasury.send(accepted)) { revert(); }
 
 		// record the acceptance.
 		participants[msg.sender] += accepted;
@@ -92,6 +93,7 @@ contract DutchAuction {
 
 	/// Mint tokens for a particular participant.
 	function finalise(address _who)
+        public
 		when_not_halted
 		when_ended
 		only_participants(_who)
@@ -104,10 +106,10 @@ contract DutchAuction {
 
 		// enact the purchase.
 		uint tokens = participants[_who] / endPrice;
-		uint refund = participants[_who] - endPrice * tokens;
+//		uint refund = participants[_who] - endPrice * tokens;
 		totalFinalised += participants[_who];
 		participants[_who] = 0;
-		if (!tokenContract.transfer(_who, tokens)) throw;
+		if (!tokenContract.transfer(_who, tokens)) { revert(); }
 
 		Finalised(_who, tokens);
 
@@ -117,62 +119,62 @@ contract DutchAuction {
 	}
 
 	/// Emergency function to pause buy-in and finalisation.
-	function setHalted(bool _halted) only_admin { halted = _halted; }
+	function setHalted(bool _halted) public only_admin { halted = _halted; }
 
 	/// Emergency function to drain the contract of any funds.
-	function drain() only_admin { if (!treasury.send(this.balance)) throw; }
+	function drain() public only_admin { if (!treasury.send(this.balance)) { revert(); } }
 
 	/// Kill this contract once the sale is finished.
-	function kill() when_all_finalised { suicide(admin); }
+	function kill() public when_all_finalised { selfdestruct(admin); }
 
 	/// The current price for a single token. If a buyin happens now, this is
 	/// the highest price per token that the buyer will pay.
-	function currentPrice() constant returns (uint weiPerToken) {
+	function currentPrice() public constant returns (uint weiPerToken) {
 		if (!isActive()) return 0;
 		return beginPrice - (now - beginTime) * saleSpeed;
 	}
 
 	/// Returns the tokens available for purchase right now.
-	function tokensAvailable() constant returns (uint tokens) {
+	function tokensAvailable() public constant returns (uint tokens) {
 		if (!isActive()) return 0;
 		return tokenCap - totalReceived / currentPrice();
 	}
 
 	/// The largest purchase than can be made at present.
-	function maxPurchase() constant returns (uint spend) {
+	function maxPurchase() public constant returns (uint spend) {
 		if (!isActive()) return 0;
 		return tokenCap * currentPrice() - totalReceived;
 	}
 
 	/// True if the sale is ongoing.
-	function isActive() constant returns (bool) { return now >= beginTime && now < endTime; }
+	function isActive() public constant returns (bool) { return now >= beginTime && now < endTime; }
 
 	/// True if all participants have finalised.
-	function allFinalised() constant returns (bool) { return now >= endTime && totalReceived == totalFinalised; }
+	function allFinalised() public constant returns (bool) { return now >= endTime && totalReceived == totalFinalised; }
 
 	/// Ensure the sale is ongoing.
-	modifier when_active { if (isActive()) _; else throw; }
+	modifier when_active { require(isActive()); _; }
 
 	/// Ensure the sale is ended.
-	modifier when_ended { if (now >= endTime) _; else throw; }
+	modifier when_ended { require(now >= endTime); _; }
 
 	/// Ensure we're not halted.
-	modifier when_not_halted { if (!halted) _; else throw; }
+	modifier when_not_halted { require(!halted); _; }
 
 	/// Ensure all participants have finalised.
-	modifier when_all_finalised { if (allFinalised()) _; else throw; }
+	modifier when_all_finalised { require(allFinalised()); _; }
 
 	/// Ensure the sender sent a sensible amount of ether.
-	modifier avoid_dust { if (msg.value >= DUST_LIMIT) _; else throw; }
+	modifier avoid_dust { require(msg.value >= DUST_LIMIT); _; }
 
 	/// Ensure `_who` is a participant.
-	modifier only_participants(address _who) { if (participants[_who] != 0) _; else throw; }
+	modifier only_participants(address _who) { require(participants[_who] != 0); _; }
 
 	/// Ensure sender is admin.
-	modifier only_admin { if (msg.sender == admin) _; else throw; }
+	modifier only_admin { require(msg.sender == admin); _; }
 
 	/// Ensure sender is certified.
-	modifier only_certified { if (certifier.certified(msg.sender) != Certifier.Level.Revoked) _; else throw; }
+	modifier only_certified { require(certifier.certified(msg.sender) != Certifier.Level.Revoked); _; }
 
 	/// Ensure sender is certified for that amount.
 	modifier only_limited_amount_or_highly_certified {
@@ -183,7 +185,7 @@ contract DutchAuction {
 		} else if (certifier.certified(msg.sender) == Certifier.Level.Level_3) {
 			_;
 		} else {
-			throw;
+			revert();
 		}
 	}
 

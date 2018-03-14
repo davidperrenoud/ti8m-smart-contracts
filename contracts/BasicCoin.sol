@@ -21,17 +21,17 @@ import "./Token.sol";
 
 // TokenReg interface
 contract TokenReg {
-	function register(address _addr, string _tla, uint _base, string _name) payable returns (bool);
-	function registerAs(address _addr, string _tla, uint _base, string _name, address _owner) payable returns (bool);
-	function unregister(uint _id);
-	function setFee(uint _fee);
-	function tokenCount() constant returns (uint);
-	function token(uint _id) constant returns (address addr, string tla, uint base, string name, address owner);
-	function fromAddress(address _addr) constant returns (uint id, string tla, uint base, string name, address owner);
-	function fromTLA(string _tla) constant returns (uint id, address addr, uint base, string name, address owner);
-	function meta(uint _id, bytes32 _key) constant returns (bytes32);
-	function setMeta(uint _id, bytes32 _key, bytes32 _value);
-	function drain();
+	function register(address _addr, string _tla, uint _base, string _name) public payable returns (bool);
+	function registerAs(address _addr, string _tla, uint _base, string _name, address _owner) public payable returns (bool);
+	function unregister(uint _id) public;
+	function setFee(uint _fee) public;
+	function tokenCount() public constant returns (uint);
+	function token(uint _id) public constant returns (address addr, string tla, uint base, string name, address owner);
+	function fromAddress(address _addr) public constant returns (uint id, string tla, uint base, string name, address owner);
+	function fromTLA(string _tla) public constant returns (uint id, address addr, uint base, string name, address owner);
+	function meta(uint _id, bytes32 _key) public constant returns (bytes32);
+	function setMeta(uint _id, bytes32 _key, bytes32 _value) public;
+	function drain() public;
 	uint public fee;
 }
 
@@ -45,25 +45,25 @@ contract BasicCoin is Owned, Token {
 
 	// the balance should be available
 	modifier when_owns(address _owner, uint _amount) {
-		if (accounts[_owner].balance < _amount) throw;
+		require(accounts[_owner].balance >= _amount);
 		_;
 	}
 
 	// an allowance should be available
 	modifier when_has_allowance(address _owner, address _spender, uint _amount) {
-		if (accounts[_owner].allowanceOf[_spender] < _amount) throw;
+		require(accounts[_owner].allowanceOf[_spender] >= _amount);
 		_;
 	}
 
 	// no ETH should be sent with the transaction
 	modifier when_no_eth {
-		if (msg.value > 0) throw;
+		require(msg.value == 0);
 		_;
 	}
 
 	// a value should be > 0
 	modifier when_non_zero(uint _value) {
-		if (_value == 0) throw;
+		require(_value != 0);
 		_;
 	}
 
@@ -77,19 +77,19 @@ contract BasicCoin is Owned, Token {
 	mapping (address => Account) accounts;
 
 	// constructor sets the parameters of execution, _totalSupply is all units
-	function BasicCoin(uint _totalSupply, address _owner) when_no_eth when_non_zero(_totalSupply) {
+	function BasicCoin(uint _totalSupply, address _owner) public when_no_eth when_non_zero(_totalSupply) {
 		totalSupply = _totalSupply;
 		owner = _owner;
 		accounts[_owner].balance = totalSupply;
 	}
 
 	// balance of a specific address
-	function balanceOf(address _who) constant returns (uint256) {
+	function balanceOf(address _who) public constant returns (uint256) {
 		return accounts[_who].balance;
 	}
 
 	// transfer
-	function transfer(address _to, uint256 _value) when_no_eth when_owns(msg.sender, _value) returns (bool) {
+	function transfer(address _to, uint256 _value) public when_no_eth when_owns(msg.sender, _value) returns (bool) {
 		Transfer(msg.sender, _to, _value);
 		accounts[msg.sender].balance -= _value;
 		accounts[_to].balance += _value;
@@ -98,7 +98,7 @@ contract BasicCoin is Owned, Token {
 	}
 
 	// transfer via allowance
-	function transferFrom(address _from, address _to, uint256 _value) when_no_eth when_owns(_from, _value) when_has_allowance(_from, msg.sender, _value) returns (bool) {
+	function transferFrom(address _from, address _to, uint256 _value) public when_no_eth when_owns(_from, _value) when_has_allowance(_from, msg.sender, _value) returns (bool) {
 		Transfer(_from, _to, _value);
 		accounts[_from].allowanceOf[msg.sender] -= _value;
 		accounts[_from].balance -= _value;
@@ -108,7 +108,7 @@ contract BasicCoin is Owned, Token {
 	}
 
 	// approve allowances
-	function approve(address _spender, uint256 _value) when_no_eth returns (bool) {
+	function approve(address _spender, uint256 _value) public when_no_eth returns (bool) {
 		Approval(msg.sender, _spender, _value);
 		accounts[msg.sender].allowanceOf[_spender] += _value;
 
@@ -116,13 +116,13 @@ contract BasicCoin is Owned, Token {
 	}
 
 	// available allowance
-	function allowance(address _owner, address _spender) constant returns (uint256) {
+	function allowance(address _owner, address _spender) public constant returns (uint256) {
 		return accounts[_owner].allowanceOf[_spender];
 	}
 
 	// no default function, simple contract only, entry-level users
-	function() {
-		throw;
+	function() public {
+		revert();
 	}
 }
 
@@ -148,13 +148,13 @@ contract BasicCoinManager is Owned {
 	uint constant public base = 1000000;
 
 	// return the number of deployed
-	function count() constant returns (uint) {
+	function count() public constant returns (uint) {
 		return coins.length;
 	}
 
 	// get a specific deployment
-	function get(uint _index) constant returns (address coin, address owner, address tokenreg) {
-		Coin c = coins[_index];
+	function get(uint _index) public constant returns (address coin, address owner, address tokenreg) {
+		Coin storage c = coins[_index];
 
 		coin = c.coin;
 		owner = c.owner;
@@ -162,17 +162,17 @@ contract BasicCoinManager is Owned {
 	}
 
 	// returns the number of coins for a specific owner
-	function countByOwner(address _owner) constant returns (uint) {
+	function countByOwner(address _owner) public constant returns (uint) {
 		return ownedCoins[_owner].length;
 	}
 
 	// returns a specific index by owner
-	function getByOwner(address _owner, uint _index) constant returns (address coin, address owner, address tokenreg) {
+	function getByOwner(address _owner, uint _index) public constant returns (address coin, address owner, address tokenreg) {
 		return get(ownedCoins[_owner][_index]);
 	}
 
 	// deploy a new BasicCoin on the blockchain
-	function deploy(uint _totalSupply, string _tla, string _name, address _tokenreg) payable returns (bool) {
+	function deploy(uint _totalSupply, string _tla, string _name, address _tokenreg) public payable returns (bool) {
 		TokenReg tokenreg = TokenReg(_tokenreg);
 		BasicCoin coin = new BasicCoin(_totalSupply, msg.sender);
 
@@ -190,9 +190,9 @@ contract BasicCoinManager is Owned {
 	}
 
 	// owner can withdraw all collected funds
-	function drain() only_owner {
+	function drain() public only_owner {
 		if (!msg.sender.send(this.balance)) {
-			throw;
+		    revert();
 		}
 	}
 }
