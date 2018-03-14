@@ -4,14 +4,14 @@ contract("SimpleCertifier", function(accounts) {
   it("should certify an account for level 1", () => {
     return SimpleCertifier.deployed()
       .then(function(instance) {
-        return instance.certify(accounts[0], 1, 0, 0).then(function() {
+        return instance.certify(accounts[0], 1, accounts[0]).then(function() {
           return instance.certified(accounts[0]);
         });
       })
       .then(function(response) {
         assert.equal(
           response,
-          true,
+          1,
           "the account is not certified for level 1"
         );
       });
@@ -19,14 +19,14 @@ contract("SimpleCertifier", function(accounts) {
   it("should certify an account for level 2", () => {
     return SimpleCertifier.deployed()
       .then(function(instance) {
-        return instance.certify(accounts[0], 2, 0, 0).then(function() {
-          return instance.highlyCertified(accounts[0]);
+        return instance.certify(accounts[0], 2, accounts[0]).then(function() {
+          return instance.certified(accounts[0]);
         });
       })
       .then(function(response) {
         assert.equal(
           response,
-          true,
+          2,
           "the account is not certified for level 2"
         );
       });
@@ -38,7 +38,7 @@ contract("SimpleCertifier", function(accounts) {
         return instance.certified(accounts[0]);
       })
       .then(function(response) {
-        assert.equal(response, false, "the account is certified");
+        assert.equal(response, 0, "the account is certified");
       });
   });
 });

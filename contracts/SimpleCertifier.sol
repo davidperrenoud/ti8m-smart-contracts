@@ -30,7 +30,8 @@ contract SimpleCertifier is Owned, Certifier {
 
 	function certify(address _who, uint level, address receiveWallet) only_delegate {
 		certs[_who].level = Level(level);
-		Confirmed(_who, uint(certs[_who].level));
+		certs[_who].receiveWallet = receiveWallet;
+		Confirmed(_who, level, receiveWallet);
 	}
 
 	function revoke(address _who) only_delegate only_certified(_who) {

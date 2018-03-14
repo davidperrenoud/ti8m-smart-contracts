@@ -172,13 +172,15 @@ contract DutchAuction {
 	modifier only_admin { if (msg.sender == admin) _; else throw; }
 
 	/// Ensure sender is certified.
-	modifier only_certified { if (certifier.certified(msg.sender)) _; else throw; }
+	modifier only_certified { if (certifier.certified(msg.sender) != Certifier.Level.Revoked) _; else throw; }
 
 	/// Ensure sender is certified for that amount.
 	modifier only_limited_amount_or_highly_certified {
 		if (msg.value < HIGHLY_CERTIFIED_LIMIT) {
 			_;
-		} else if (certifier.highlyCertified(msg.sender)) {
+		} else if (certifier.certified(msg.sender) == Certifier.Level.Level_2) {
+			_;
+		} else if (certifier.certified(msg.sender) == Certifier.Level.Level_3) {
 			_;
 		} else {
 			throw;

@@ -13,7 +13,7 @@ contract("DutchAuction", function(accounts) {
   });
   it("should check if a certified levels account can buy according to the limit", () => {
     return SimpleCertifier.deployed().then(instance => {
-      return instance.certify(accounts[1], 1, 0, 0).then(() => {
+      return instance.certify(accounts[1], 1, accounts[1]).then(() => {
         return DutchAuction.deployed()
           .then(instance => {
             const amount = web3.toWei(0.5, "ether");
@@ -27,7 +27,7 @@ contract("DutchAuction", function(accounts) {
           });
       });
 
-      return instance.certify(accounts[2], 2, 0, 0).then(() => {
+      return instance.certify(accounts[2], 2, accounts[2]).then(() => {
         return DutchAuction.deployed()
           .then(instance => {
             const amount = web3.toWei(2, "ether");
@@ -64,7 +64,7 @@ contract("DutchAuction", function(accounts) {
   });
   it("should check if a certified level 1 account can buy with a higher limit", () => {
     return SimpleCertifier.deployed().then(instance => {
-      return instance.certify(accounts[1], 1, 0, 0).then(() => {
+      return instance.certify(accounts[1], 1, accounts[1]).then(() => {
         return DutchAuction.deployed()
           .then(instance => {
             const amount = web3.toWei(2, "ether");

@@ -24,7 +24,7 @@ contract Certifier {
 		Level_3
 	}
 
-	event Confirmed(address indexed who, uint level);
+	event Confirmed(address indexed who, uint level, address indexed receiveWallet);
 	event Revoked(address indexed who);
 	function certified(address _who) constant public returns (Level);
 }
