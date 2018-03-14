@@ -17,10 +17,14 @@
 pragma solidity ^0.4.17;
 
 contract Certifier {
-	event Confirmed(address indexed who, uint level);
-	event Revoked(address indexed who);
-	function certified(address _who) constant public returns (bool);
-	function getData(address _who, string _field) constant public returns (bytes32) {}
-	function getAddress(address _who, string _field) constant public returns (address) {}
-	function getUint(address _who, string _field) constant public returns (uint) {}
+	enum Level {
+		Revoked,
+		Level_1,
+		Level_2,
+		Level_3
+	}
+
+	event Confirmed(bytes indexed who, uint level);
+	event Revoked(bytes indexed who);
+	function certified(bytes _who) constant public returns (Level);
 }
