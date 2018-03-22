@@ -54,6 +54,10 @@ contract SimpleCertifier is Owned, Certifier {
 		return certs[_who].level;
 	}
 
+	function getCertifiedReceiveWallet(address _who) public constant returns (address) {
+		return certs[_who].receiveWallet;
+	}
+
 	function setDelegate(address _new) public only_owner { delegate = _new; }
 
 	mapping (address => Certification) certs;
