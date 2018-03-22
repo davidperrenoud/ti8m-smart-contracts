@@ -20,17 +20,15 @@ import "./Owned.sol";
 import "./Certifier.sol";
 
 contract SimpleCertifier is Owned, Certifier {
-	modifier only_delegate {
-		if (msg.sender != delegate) {
+	modifier onlyDelegate {
+		if (msg.sender != delegate)
 			return;
-		}
 		_;
 	}
 
-	modifier only_certified(address _who) {
-		if (certs[_who].level == Level.Revoked) {
+	modifier onlyCertified(address _who) {
+		if (certs[_who].level == Level.Revoked)
 			return;
-		}
 		_;
 	}
 
@@ -39,13 +37,13 @@ contract SimpleCertifier is Owned, Certifier {
 		address receiveWallet;
 	}
 
-	function certify(address _who, uint level, address receiveWallet) public only_delegate {
+	function certify(address _who, uint level, address receiveWallet) public onlyDelegate {
 		certs[_who].level = Level(level);
 		certs[_who].receiveWallet = receiveWallet;
 		Confirmed(_who, level, receiveWallet);
 	}
 
-	function revoke(address _who) public only_delegate only_certified(_who) {
+	function revoke(address _who) public onlyDelegate onlyCertified(_who) {
 		certs[_who].level = Level.Revoked;
 		Revoked(_who);
 	}
