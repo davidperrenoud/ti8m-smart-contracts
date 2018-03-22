@@ -20,8 +20,19 @@ import "./Owned.sol";
 import "./Certifier.sol";
 
 contract SimpleCertifier is Owned, Certifier {
-	modifier only_delegate { if (msg.sender != delegate) return; _; }
-	modifier only_certified(address _who) { if (certs[_who].level == Level.Revoked) return; _; }
+	modifier only_delegate {
+		if (msg.sender != delegate) {
+			return;
+		}
+		_;
+	}
+
+	modifier only_certified(address _who) {
+		if (certs[_who].level == Level.Revoked) {
+			return;
+		}
+		_;
+	}
 
 	struct Certification {
 		Level level;
