@@ -50,13 +50,14 @@ contract SimpleCertifier is Owned, Certifier {
 		Revoked(_who);
 	}
 
-	function certified(address _who) public constant returns (Level) {
+	function getCertifiedLevel(address _who) public constant returns (Level) {
 		return certs[_who].level;
 	}
 
 	function setDelegate(address _new) public only_owner { delegate = _new; }
 
 	mapping (address => Certification) certs;
+
 	// So that the server posting puzzles doesn't have access to the ETH.
 	address public delegate = msg.sender;
 }
