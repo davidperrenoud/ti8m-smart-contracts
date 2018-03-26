@@ -17,7 +17,7 @@
     "url": "https://github.com/davidperrenoud/ti8m-smart-contracts"
   },
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "ganache-cli": "^6.0.3",
     "truffle": "^4.0.5",

@@ -1,6 +1,7 @@
 //! The dutch-auction contract.
 //!
 //! Copyright 2017 Gavin Wood, Parity Technologies Ltd.
+//! Copyright 2018 David Perrenoud, ti&m AG
 //!
 //! Licensed under the Apache License, Version 2.0 (the "License");
 //! you may not use this file except in compliance with the License.
